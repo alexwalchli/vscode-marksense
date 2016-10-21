@@ -10,18 +10,10 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:extension.sayHello"
-  ],
   "main": "./out/src/extension",
-  "contributes": {
-    "commands": [
-      {
-        "command": "extension.sayHello",
-        "title": "Hello World"
-      }
-    ]
-  },
+  "activationEvents": [
+    "onLanguage:javascript"
+  ],
   "scripts": {
     "test": "standard 'src/**/*.js' 'test/**/*.js' --fix && mocha",
     "vscode:prepublish": "tsc -p ./",
@@ -40,5 +32,8 @@
     "standard": "^8.4.0",
     "typescript": "^2.0.3",
     "vscode": "^1.0.0"
+  },
+  "dependencies": {
+    "acorn": "^4.0.3"
   }
 }

@@ -1,13 +1,23 @@
-import * as acorn from 'acorn'
+declare var acorn: any;
 
 export default class MarkSense {
+
+  public snippetTree
+
+  private searchIndex
+  private rootKey
+  private currentKey
+  private currentSnippets = []
+
+  constructor () {
+  }
 
   // TODO: Lots of needed here not that API is defined
   generateSnippetTree (code) {
     let snippetTree = {}
     this.searchIndex = {}
 
-    snippetTree.__ROOT__ = {
+    snippetTree['__ROOT__'] = {
       depth: 0,
       parent: undefined,
       children: []
@@ -18,7 +28,7 @@ export default class MarkSense {
       const lineOfCode = linesOfCode[i]
       const parent = this.getParentFromIndex(linesOfCode, i, lineOfCode.depth)
 
-      this.updateSearchIndex(lineOfCode, lineOfCode.ttokenizedCode)
+      this.updateSearchIndex(lineOfCode)
 
       if (snippetTree[lineOfCode.tokenizedCode]) {
         if (snippetTree[parent.tokenizedCode].children.find((child) => child.tokenizedCode === lineOfCode.tokenizedCode)) {
@@ -158,9 +168,9 @@ export default class MarkSense {
     const tokens = [...acorn.tokenizer(lineOfCode)]
     let tokenizedCode = lineOfCode
     let tokenOffset = 0
-    tokens.forEach(token => {
+    tokens.forEach((token, idx) => {
       if (token.type.label === 'name' || token.type.label === 'string') {
-        let replaceToken = `{${token.type.label}}`
+        let replaceToken = `{{${idx}:${token.type.label}}}`
         tokenizedCode = tokenizedCode.slice(0, token.start + tokenOffset) + replaceToken + tokenizedCode.slice(token.end + tokenOffset, tokenizedCode.length)
         tokenOffset = tokenizedCode.length - lineOfCode.length
       }
