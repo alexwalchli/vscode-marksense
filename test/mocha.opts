@@ -1,3 +1,4 @@
---require babel-register
+--require ts-node/register
 --recursive
 --reporter spec
+test/**/*.ts

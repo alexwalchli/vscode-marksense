@@ -1,6 +1,7 @@
-import MarkSense from '../../src/core/marksense'
-import {describe, it} from 'mocha'
-import {expect} from 'chai'
+import MarkSense from '../src/marksense'
+const expect = require('chai').expect
+const describe = require('mocha').describe
+const it = require('mocha').it
 
 describe('marksense', () => {
   describe('generateSnippetTree', () => {

@@ -1,6 +1,7 @@
-import MarkSense from '../../src/core/marksense'
-import {describe, it} from 'mocha'
-import {expect} from 'chai'
+import MarkSense from '../src/marksense'
+const expect = require('chai').expect
+const describe = require('mocha').describe
+const it = require('mocha').it
 
 describe('marksense', () => {
   describe('snippet retrieval', () => {
@@ -44,7 +45,7 @@ export const hmmIdk = (y) => {
         const rootKey = `export const {name} = ({name}) => {`
         markSense.newRootSnippet(rootKey)
 
-        const result = markSense.getDeeperSnippet(rootKey)
+        const result = markSense.getDeeperSnippet()
 
         expect(result).to.deep.equal([rootKey, `return {`])
         expect(markSense.currentKey).to.deep.equal(`return {`)
@@ -54,7 +55,7 @@ export const hmmIdk = (y) => {
         const rootKey = `{name}: {name},`
         markSense.newRootSnippet(rootKey)
 
-        const result = markSense.getDeeperSnippet(rootKey)
+        const result = markSense.getDeeperSnippet()
 
         expect(result).to.deep.equal([rootKey])
       })
@@ -64,9 +65,9 @@ export const hmmIdk = (y) => {
       it('should return the previous snippet and set currentKey', () => {
         const rootKey = `export const {name} = ({name}) => {`
         markSense.newRootSnippet(rootKey)
-        markSense.getDeeperSnippet(rootKey)
+        markSense.getDeeperSnippet()
 
-        const result = markSense.getShallowerSnippet(rootKey)
+        const result = markSense.getShallowerSnippet()
 
         expect(result).to.deep.equal([rootKey])
         expect(markSense.currentKey).to.deep.equal(rootKey)

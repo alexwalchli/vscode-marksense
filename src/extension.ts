@@ -1,11 +1,9 @@
-'use strict'
-
 import * as vscode from 'vscode'
 import MarkSense from './marksense'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context) {
     vscode.languages.registerCompletionItemProvider('javascript', new MarkSenseCompletionItemProvider, '.')
 }
 
@@ -13,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {
 }
 
-class MarkSenseCompletionItemProvider implements vscode.CompletionItemProvider {
+class MarkSenseCompletionItemProvider {
 
   private markSense: MarkSense
 
@@ -21,13 +19,14 @@ class MarkSenseCompletionItemProvider implements vscode.CompletionItemProvider {
     this.markSense = new MarkSense();
   }
 
-  public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.CompletionItem[]> {
+  public provideCompletionItems (document, position, token) {
     const code = document.getText()
     this.markSense.generateSnippetTree(code)
 
-    const items = Object.keys(this.markSense.snippetTree).map(snippet => snippet.tokenizedCode);
+    //const items = Object.keys(this.markSense.snippetTree).map(s => s.tokenizedCode);
 
     let myItem = new vscode.CompletionItem(`export const {{0:string}} => {\n  {{1:string}}\n}`, vscode.CompletionItemKind.Snippet)
+    
     return Promise.resolve<vscode.CompletionItem[]>([myItem]);
 	}
 

@@ -1,19 +1,19 @@
-declare var acorn: any;
+const acorn = require('acorn')
+
 
 export default class MarkSense {
 
-  public snippetTree
-
-  private searchIndex
-  private rootKey
-  private currentKey
-  private currentSnippets = []
+  public snippetTree : any
+  public searchIndex : any
+  public rootKey : string
+  public currentKey : string
+  public currentSnippets : string[] = []
 
   constructor () {
   }
 
   // TODO: Lots of needed here not that API is defined
-  generateSnippetTree (code) {
+  generateSnippetTree (code: string) {
     let snippetTree = {}
     this.searchIndex = {}
 
@@ -70,11 +70,11 @@ export default class MarkSense {
     return snippetTree
   }
 
-  search (code) {
+  search (code: string) {
     return this.searchIndex[code] || []
   }
 
-  getParentFromIndex (linesOfCode, idx, currDepth) {
+  getParentFromIndex (linesOfCode, idx: number, currDepth: number) {
     if (currDepth === 1) {
       return { tokenizedCode: '__ROOT__', depth: 0, children: [] }
     }
@@ -87,12 +87,12 @@ export default class MarkSense {
     }
   }
 
-  depth (code) {
+  depth (code: string) {
     return code.split('  ').length
   }
 
   // Starting over
-  newRootSnippet (rootKey) {
+  newRootSnippet (rootKey: string) {
     this.rootKey = rootKey
     this.currentKey = rootKey
     this.currentSnippets = [ rootKey ]
@@ -152,7 +152,7 @@ export default class MarkSense {
     return [...this.currentSnippets]
   }
 
-  unescapeHtml (str) {
+  unescapeHtml (str: string) {
     return str.replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
@@ -160,26 +160,26 @@ export default class MarkSense {
         .replace(/&#039;/g, "'")
   }
 
-  isWhitespaceOrEmptyOrClosing (lineOfCode) {
+  isWhitespaceOrEmptyOrClosing (lineOfCode: string) {
     return lineOfCode === null || lineOfCode.match(/^ *$/) !== null || lineOfCode.indexOf('}') > -1
   }
 
-  tokenizeLineOfCode (lineOfCode) {
-    const tokens = [...acorn.tokenizer(lineOfCode)]
-    let tokenizedCode = lineOfCode
+  tokenizeLineOfCode (code: string) {
+    const tokens = [...acorn.tokenizer(code)]
+    let tokenizedCode = code
     let tokenOffset = 0
     tokens.forEach((token, idx) => {
       if (token.type.label === 'name' || token.type.label === 'string') {
         let replaceToken = `{{${idx}:${token.type.label}}}`
         tokenizedCode = tokenizedCode.slice(0, token.start + tokenOffset) + replaceToken + tokenizedCode.slice(token.end + tokenOffset, tokenizedCode.length)
-        tokenOffset = tokenizedCode.length - lineOfCode.length
+        tokenOffset = tokenizedCode.length - code.length
       }
     })
 
     return tokenizedCode
   }
 
-  updateSearchIndex (lineOfCode) {
+  updateSearchIndex (lineOfCode: LineOfCode) {
     const twoLetternGram = lineOfCode.code.substring(0, 2)
     const threeLetternGram = lineOfCode.code.substring(0, 3)
     this.searchIndex[twoLetternGram] = this.searchIndex[twoLetternGram] || []
@@ -192,7 +192,7 @@ export default class MarkSense {
     }
   }
 
-  cleanAndParseCodeIntoLines (code) {
+  cleanAndParseCodeIntoLines (code: string): LineOfCode[] {
     if (!code) {
       return []
     }
@@ -208,4 +208,10 @@ export default class MarkSense {
               }
             })
   }
+}
+
+interface LineOfCode {
+  depth: number
+  code: string
+  tokenizedCode: string
 }
