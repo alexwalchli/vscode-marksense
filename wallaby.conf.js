@@ -1,13 +1,13 @@
 module.exports = (wallaby) => {
   return {
     files: [
-      'src/**/*.js',
+      'src/**/*.ts',
     ],
     tests: [
-      'test/**/*-spec.js'
+      'test/**/*.test.ts'
     ],
     compilers: {
-      '**/*.js': wallaby.compilers.babel()
+      '**/*.ts': wallaby.compilers.babel()
     },
     env: {
       type: "node"

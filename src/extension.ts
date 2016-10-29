@@ -19,15 +19,15 @@ class MarkSenseCompletionItemProvider {
     this.markSense = new MarkSense();
   }
 
-  public provideCompletionItems (document, position, token) {
+  public provideCompletionItems (document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.CompletionItem[]> {
+    const input = document.getText(new vscode.Range(position.line, position.character - 1, position.line, position.character))
     const code = document.getText()
-    this.markSense.generateSnippetTree(code)
+    this.markSense.createSnippets(code)
+    const items = this.markSense.search(input)
 
-    //const items = Object.keys(this.markSense.snippetTree).map(s => s.tokenizedCode);
+    const completionItems = items.map(item => new vscode.CompletionItem(item, vscode.CompletionItemKind.Snippet))
 
-    let myItem = new vscode.CompletionItem(`export const {{0:string}} => {\n  {{1:string}}\n}`, vscode.CompletionItemKind.Snippet)
-    
-    return Promise.resolve<vscode.CompletionItem[]>([myItem]);
+    return Promise.resolve<vscode.CompletionItem[]>(completionItems);
 	}
 
 	// public resolveCompletionItem(item: vscode.CompletionItem, token: vscode.CancellationToken): any | Thenable<any> {
