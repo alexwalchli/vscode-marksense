@@ -12,25 +12,48 @@ export const reduceToNGramSnippetsDictionary = (tokenizedLinesOfCode: TokenizedL
     }, {})
   }
 
-export const mapToSearchIndex = (nGramSnippetsDictionary: Object, snippetMarkovTree: SnippetMarkovTree) => {
-  let snippetSearchIndex = {}
+export const reduceToSearchIndex = (snippetMarkovTree: SnippetMarkovTree) => {
+  return Object.keys(snippetMarkovTree.nodes).reduce((searchIndex, nodeKey) => {
+    if (nodeKey === '__ROOT__') {
+      return searchIndex;
+    }
+    const node = snippetMarkovTree.nodes[nodeKey]
+    const parentMarkovNode = snippetMarkovTree.nodes[snippetMarkovTree.nodes[nodeKey].parentKey]
+    const nodeEdge = parentMarkovNode.children.find(c => c.key === nodeKey)
+    const mostProbableTokenValuesForEachPositionInSnippet = nodeEdge.orderedTokenValueOccurances
+      .reduce((acc, otvo, idx) => {
+        acc[idx] = otvo.reduce((prev, current) => (prev.occurance > current.occurance) ? prev : current).value
+        return acc
+      }, [])
 
-  // TODO: This needs some work. Lots of loops, need orderedTokenValues. Maybe a way to store the chain so it's easier to 
-  // create this
-
-  Object.keys(nGramSnippetsDictionary).map((ngram, idx) => {
-    snippetSearchIndex[ngram] = []
-    nGramSnippetsDictionary[ngram].forEach(snippet => {
-      let parentMarkovNode = snippetMarkovTree.nodes[snippetMarkovTree.nodes[snippet].parentKey]
-      let mostProbableEdge = parentMarkovNode.children.reduce((prev, current) => (prev.count > current.count) ? prev : current)
-      let snippetWithPlaceholders = snippet
-      mostProbableEdge.orderedTokenValues.forEach((tokenValue, idx) => {
-        snippet = snippet.replace(`{{${idx}}}`, tokenValue)
-      })
-
-      snippetSearchIndex[ngram] = snippetWithPlaceholders
+    node.nGrams.forEach(nGram => {
+      searchIndex[nGram] = searchIndex[nGram] || []
+      if(!searchIndex[nGram].find(s => s.key === node.key)){
+        searchIndex[nGram].push(createSnippet(node.key, mostProbableTokenValuesForEachPositionInSnippet))
+      }
     })
-  })
 
-  return nGramSnippetsDictionary
+    return searchIndex
+  }, {})
+}
+
+function createSnippet (tokenizedSnippet, mostProbableTokenValues) {
+  let key = tokenizedSnippet
+  let label = tokenizedSnippet
+  let filterText = tokenizedSnippet
+  let documentation = tokenizedSnippet
+  let insertText = tokenizedSnippet
+
+  mostProbableTokenValues.forEach((tokenValue, idx) => {
+    insertText = insertText.replace(`{{${idx}}}`, `{{${tokenValue}}}`)
+  })
+  insertText += `{{}}`
+  
+  label = insertText.replace(new RegExp('{{', 'g'), '$').replace(new RegExp('}}', 'g'), '');
+  filterText = insertText.replace(new RegExp('{{', 'g'), '').replace(new RegExp('}}', 'g'), '');
+  documentation = tokenizedSnippet.replace(new RegExp('{{', 'g'), '');
+  documentation = documentation.replace(new RegExp('}}', 'g'), '');
+
+ 
+  return { key, label, filterText, documentation,  insertText }
 }

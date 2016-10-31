@@ -34,9 +34,9 @@ function tokenizeLineOfCode (code: string): any {
   let tokenValues = []
   let tokenOffset = 0
   tokens.forEach((token, idx) => {
-    if (token.type.label === 'name' || token.type.label === 'string') {
+    if (token.type.label === 'name' || token.type.label === 'string' || token.type.label === 'num') {
       tokenValues.push(token.value)
-      let replaceToken = `{{${tokenValues.length - 1}}}`
+      let replaceToken = token.type.label === 'string' ? `'{{${tokenValues.length - 1}}}'` : `{{${tokenValues.length - 1}}}`
       tokenizedCode = tokenizedCode.slice(0, token.start + tokenOffset) + replaceToken + tokenizedCode.slice(token.end + tokenOffset, tokenizedCode.length)
       tokenOffset = tokenizedCode.length - code.length
     }
