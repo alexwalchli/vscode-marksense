@@ -49,7 +49,7 @@ function createSnippet (tokenizedSnippet, mostProbableTokenValues) {
   })
   insertText += `{{}}`
   
-  label = insertText.replace(new RegExp('{{', 'g'), '$').replace(new RegExp('}}', 'g'), '');
+  label = insertText.replace(new RegExp('{{', 'g'), '').replace(new RegExp('}}', 'g'), '');
   filterText = insertText.replace(new RegExp('{{', 'g'), '').replace(new RegExp('}}', 'g'), '');
   documentation = tokenizedSnippet.replace(new RegExp('{{', 'g'), '');
   documentation = documentation.replace(new RegExp('}}', 'g'), '');
